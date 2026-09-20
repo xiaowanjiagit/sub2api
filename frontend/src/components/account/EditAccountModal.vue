@@ -2251,6 +2251,29 @@
         </div>
       </div>
 
+      <!-- Codex 292 门票状态（仅 OpenAI OAuth） -->
+      <div
+        v-if="account?.platform === 'openai' && (account?.type === 'oauth' || account?.type === 'setup-token') && codexTurnTickets.length"
+        class="border-t border-gray-200 pt-4 dark:border-dark-600"
+      >
+        <label class="input-label mb-0">{{ t('admin.accounts.openai.codexTurnTicket') }}</label>
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          {{ t('admin.accounts.openai.codexTurnTicketDesc') }}
+        </p>
+        <div class="mt-3 space-y-1.5">
+          <div v-for="ticket in codexTurnTickets" :key="ticket.model" class="flex items-center justify-between text-sm">
+            <span class="font-medium">{{ ticket.model }}</span>
+            <span v-if="ticket.ready" class="text-emerald-600 dark:text-emerald-400">
+              {{ t('admin.accounts.openai.codexTurnTicketReady', { time: formatCodexTicketRemaining(ticket.remaining_seconds) }) }}
+            </span>
+            <span v-else-if="ticket.blocked" class="text-amber-600 dark:text-amber-400">
+              {{ t('admin.accounts.openai.codexTurnTicketPaused') }}
+            </span>
+            <span v-else class="text-gray-500">{{ t('admin.accounts.openai.codexTurnTicketMissing') }}</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Codex 指纹收敛模式（仅 OpenAI OAuth） -->
       <div
         v-if="account?.platform === 'openai' && account?.type === 'oauth'"
@@ -3514,6 +3537,14 @@ const customBaseUrl = ref('')
 const openaiPassthroughEnabled = ref(false)
 // OpenAI Codex namespace 工具摊平兼容开关（仅 OAuth），缺省关闭即原样保留
 const openaiFlattenNamespacesEnabled = ref(false)
+const codexTurnTickets = computed(() => props.account?.codex_turn_tickets ?? [])
+
+function formatCodexTicketRemaining(seconds: number) {
+  const total = Math.max(0, Math.floor(seconds || 0))
+  const m = Math.floor(total / 60)
+  const s = total % 60
+  return `${m}m${String(s).padStart(2, '0')}s`
+}
 const openAILongContextBillingEnabled = ref(false)
 // OpenAI 订阅档位（Plus / Pro 20x / Pro 5x / Business Standard / Business Premium / Free）手动覆盖值,
 // 存于 credentials.plan_type;'' 表示清空/自动识别

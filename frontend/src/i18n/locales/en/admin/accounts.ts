@@ -597,6 +597,11 @@ export default {
         flattenNamespaces: 'Flatten Codex namespace tools (compatibility)',
         flattenNamespacesDesc:
           'Disabled by default: Codex namespace tool declarations are forwarded as-is on /responses, which is what the ChatGPT Codex backend expects. Enable only when this OAuth account is routed to a relay that rejects namespace tools — flattening renames them to namespace__tool, which breaks models that address collaboration tools as functions.<namespace>.<tool>. Compaction requests always flatten regardless of this switch.',
+        codexTurnTicket: 'Codex 292 ticket',
+        codexTurnTicketDesc: 'Ticket status for the configured models. Requests are paused without a valid ticket only when fail-closed is enabled.',
+        codexTurnTicketMissing: 'No valid ticket; requests remain allowed',
+        codexTurnTicketReady: '{time} left',
+        codexTurnTicketPaused: 'No 292 ticket; this model is paused',
         longContextBilling: 'API long-context pricing',
         longContextBillingDesc:
           'Disabled by default. Enable only when this account\'s upstream charges OpenAI API long-context rates above the model threshold.',

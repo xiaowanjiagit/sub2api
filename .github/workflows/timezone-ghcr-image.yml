@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE: ghcr.io/xiaowanjiagit/sub2api
-      IMAGE_VERSION: 0.2.17-timezone.1
+      IMAGE_VERSION: 0.2.17-timezone.2
     steps:
       - name: Checkout
         uses: actions/checkout@v6

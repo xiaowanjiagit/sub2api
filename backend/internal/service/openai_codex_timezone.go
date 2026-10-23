@@ -180,9 +180,10 @@ func (s *OpenAIGatewayService) applyCodexTimezone(ctx context.Context, account *
 	}
 	value, _ := account.Extra[codexTimezoneExtraKey].(string)
 	value = strings.TrimSpace(value)
-	if value == "off" {
+	switch value {
+	case "off":
 		value = ""
-	} else if value == "" {
+	case "":
 		value = s.settingService.GetOpenAICodexTimezone(ctx)
 	}
 	out, err := rewriteCodexEnvironmentTimezone(body, value)

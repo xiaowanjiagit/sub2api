@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"regexp"
@@ -9,8 +10,10 @@ import (
 	"time"
 
 	infraerrors "github.com/Wei-Shaw/sub2api/internal/pkg/errors"
+	"github.com/Wei-Shaw/sub2api/internal/pkg/logger"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
+	"go.uber.org/zap"
 )
 
 const codexTimezoneExtraKey = "codex_timezone"
@@ -178,10 +181,22 @@ func (s *OpenAIGatewayService) applyCodexTimezone(ctx context.Context, account *
 	value, _ := account.Extra[codexTimezoneExtraKey].(string)
 	value = strings.TrimSpace(value)
 	if value == "off" {
-		return body, nil
-	}
-	if value == "" {
+		value = ""
+	} else if value == "" {
 		value = s.settingService.GetOpenAICodexTimezone(ctx)
 	}
-	return rewriteCodexEnvironmentTimezone(body, value)
+	out, err := rewriteCodexEnvironmentTimezone(body, value)
+	// Empty timezone preserves the client. Rewritten reports an actual context
+	// change; false also covers already-matching or absent context fields.
+	fields := []zap.Field{
+		zap.Int64("account_id", account.ID),
+		zap.String("timezone", value),
+		zap.Bool("rewritten", err == nil && !bytes.Equal(body, out)),
+	}
+	if err != nil {
+		logger.FromContext(ctx).Warn("openai.codex_timezone_failed", fields...)
+	} else {
+		logger.FromContext(ctx).Info("openai.codex_timezone", fields...)
+	}
+	return out, err
 }
